@@ -20,7 +20,7 @@ export default function PdfList() {
   }, []);
 
   async function fetchPdfs(selected) {
-    // NEXT_PUBLIC_API_URL = http://localhost:8000
+                                             // http://localhost:8000
     let path = '/pdfs';                      // http://localhost:8000/pdfs
     if (selected !== undefined) {
       path = `/pdfs?selected=${selected}`;   // http://localhost:8000/pdfs?selected=3
@@ -35,23 +35,28 @@ export default function PdfList() {
   }, 500), []);
 
   function handlePdfChange(e, id) {
-    const target = e.target;
-    const value = target.type === 'checkbox' ? target.checked : target.value;
-    const name = target.name;
-    const copy = [...pdfs];
-    const idx = pdfs.findIndex((pdf) => pdf.id === id);
+    const target = e.target;    // target.type = 'checkbox' or 'text'
+    const value = target.type === 'checkbox' ? target.checked : target.value;  
+    const name = target.name;   // 'name' or 'selected'
+    const copy = [...pdfs];     // make a copy of the pdf list
+    const idx = pdfs.findIndex((pdf) => pdf.id === id);  // find the list index, using the db index
     const changedPdf = { ...pdfs[idx], [name]: value };
-    copy[idx] = changedPdf;
+    copy[idx] = changedPdf;     // replace the indexed pdf object with the changed one
     debouncedUpdatePdf(changedPdf, name);
     setPdfs(copy);
   }
 
   async function updatePdf(pdf, fieldChanged) {
-    const data = { [fieldChanged]: pdf[fieldChanged] };
+    // const data = { [fieldChanged]: pdf[fieldChanged] };
+    // let body_data = JSON.stringify(data);
+    // Bug fix
+    let body_data = { "name": pdf.name, "selected": pdf.selected, "file": pdf.file }
+    body_data = JSON.stringify(body_data);
+    const update_url = process.env.NEXT_PUBLIC_API_URL + `/pdfs/${pdf.id}`;
 
-    await fetch(process.env.NEXT_PUBLIC_API_URL + `/pdfs/${pdf.id}`, {
+    await fetch(update_url, {
       method: 'PUT',
-      body: JSON.stringify(data),
+      body: body_data,
       headers: { 'Content-Type': 'application/json' }
     });
   }

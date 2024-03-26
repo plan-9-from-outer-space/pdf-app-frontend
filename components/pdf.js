@@ -3,6 +3,8 @@ import styles from '../styles/pdf.module.css';
 
 export default function PDFComponent (props) {
 
+  // console.log(props);
+
   const { pdf, onChange, onDelete } = props;
   
   return (
